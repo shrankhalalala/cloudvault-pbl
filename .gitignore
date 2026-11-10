@@ -1,0 +1,44 @@
+# Dependencies, build output, and deployment archives
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+.venv/
+venv/
+*.zip
+*.tsbuildinfo
+
+# Python and local tooling caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.taste-skill/
+
+# Local environments and credential material
+.env
+.env.*
+*.env
+!.env.example
+.envrc
+.aws/
+.git-credentials
+.netrc
+.npmrc
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
+
+# Local operating system files and logs
+.DS_Store
+*.log

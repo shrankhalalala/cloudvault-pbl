@@ -1,0 +1,75 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucketVersions"
+      ],
+      "Resource": "arn:aws:s3:::<BUCKET_NAME>",
+      "Condition": {
+        "StringEquals": {
+          "s3:ResourceAccount": "<ACCOUNT_ID>"
+        },
+        "StringLike": {
+          "s3:prefix": [
+            "uploads/<OWNER_SUB>/*",
+            "owners/<OWNER_SUB>/*"
+          ]
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": "arn:aws:s3:::<BUCKET_NAME>/uploads/<OWNER_SUB>/*",
+      "Condition": {
+        "StringEquals": {
+          "s3:ResourceAccount": "<ACCOUNT_ID>"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::<BUCKET_NAME>/owners/<OWNER_SUB>/*",
+      "Condition": {
+        "StringEquals": {
+          "s3:ResourceAccount": "<ACCOUNT_ID>"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem"
+      ],
+      "Resource": "arn:aws:dynamodb:<REGION>:<ACCOUNT_ID>:table/cloudvault-metadata",
+      "Condition": {
+        "ForAllValues:StringEquals": {
+          "dynamodb:LeadingKeys": "OWNER#<OWNER_SUB>"
+        },
+        "Null": {
+          "dynamodb:LeadingKeys": "false"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:<REGION>:<ACCOUNT_ID>:log-group:/aws/lambda/cloudvault-processor:log-stream:*"
+    }
+  ]
+}
