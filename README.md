@@ -4,6 +4,77 @@ Intelligent Serverless Cloud Storage & Recovery System for a two-person universi
 
 Phase 2A adds an authenticated AWS integration alongside the Phase 1 browser demo. The local checks use synthetic credentials and mocked AWS SDK calls. AWS resource creation and live acceptance are manual steps. [AWS Console setup](infrastructure/console-guides/manual-setup.md).
 
+## Tech stack
+
+| Layer | Technologies | Role |
+| --- | --- | --- |
+| Frontend | React, TypeScript, Vite, Tailwind CSS | Dashboard, file management, version history, and analytics |
+| Browser demo | IndexedDB | Stores sample and uploaded files in the browser. Runs without an AWS account or Python server. |
+| Authentication and API | Amazon Cognito, OAuth 2.0 with PKCE, Amazon API Gateway HTTP API | Signs in the workspace owner and validates JWTs on protected routes |
+| Backend | Python 3.12, AWS Lambda, Boto3 | Handles API requests and verifies and promotes uploads |
+| Storage | Amazon S3 with versioning, Amazon DynamoDB | S3 stores file content and retained versions. DynamoDB tracks metadata, activity, and share expiration. |
+| Permissions and logging | AWS IAM, Amazon CloudWatch Logs | Limits Lambda permissions and captures function logs |
+| Optional email | Amazon EventBridge, Amazon SNS | Schedules the daily summary and sends email notifications |
+| Testing and formatting | pytest, Botocore Stubber, Vitest, Prettier | Runs local tests and checks frontend formatting |
+
+## Architecture diagrams
+
+### AWS architecture
+
+```mermaid
+flowchart LR
+    Browser["React dashboard"] <-->|"Sign-in with PKCE"| Cognito["Amazon Cognito"]
+    Browser -->|"Bearer access token"| Gateway["API Gateway HTTP API"]
+    Gateway -->|"Authorized requests"| Api["API Lambda"]
+    Browser <-->|"Presigned uploads and downloads"| S3[("Private versioned S3 bucket")]
+    Api -->|"Sign URLs and manage versions"| S3
+    Api -->|"Read and update metadata"| Db[("DynamoDB")]
+    S3 -->|"Staging PUT event"| Processor["Upload processor Lambda"]
+    Processor -->|"Verify and promote uploads"| S3
+    Processor -->|"Record upload and activity"| Db
+    EventBridge["EventBridge daily rule"] -.-> Summary["Optional summary Lambda"]
+    Summary -->|"Read workspace totals"| Db
+    Summary -.-> Sns["Optional SNS email"]
+    Api -.-> Sns
+    Processor -.-> Sns
+```
+
+### File upload
+
+```mermaid
+sequenceDiagram
+    participant Browser as React dashboard
+    participant API as API Gateway and API Lambda
+    participant S3 as Versioned S3 bucket
+    participant Processor as Upload processor Lambda
+    participant DB as DynamoDB
+
+    Browser->>API: Request an upload URL
+    API->>DB: Create a pending file record
+    API-->>Browser: Return a presigned PUT URL
+    Browser->>S3: Upload bytes to the staging key
+    par Browser confirmation
+        Browser->>API: Confirm upload by file ID
+    and S3 notification
+        S3-->>Processor: Send the staging PUT event
+    end
+    Note over API,DB: Both handlers use the same logic to verify the staging version.
+    Note over API,DB: The handler that acquires the write lease copies the verified version to the final key and records the active file and activity in DynamoDB.
+```
+
+### File deletion and recovery
+
+```mermaid
+flowchart LR
+    Active["Active file"] -->|"Move to Trash"| Deleted["S3 adds a delete marker"]
+    Deleted --> Trash["File appears in Trash"]
+    Trash -->|"Select a retained content version"| Restore["S3 copies that version to the original key"]
+    Active -->|"Restore from version history"| Restore
+    Restore --> Current["Restored content becomes the current version"]
+```
+
+See [the architecture notes](docs/architecture.md) for the DynamoDB data model, upload retries, and recovery behavior.
+
 ## Run the browser demo
 
 Use Node.js 22+ and npm. Python 3.12 is required for backend work. From the repository root:
