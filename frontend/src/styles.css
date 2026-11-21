@@ -1,14 +1,23 @@
 @import "tailwindcss";
 :root {
   font-family: "IBM Plex Sans", sans-serif;
-  color: #202526;
-  background: #f1f4f4;
+  color: #1c2230;
+  background: #eceef9;
   font-synthesis: none;
-  --text: #202526;
-  --muted: #657074;
-  --border: #e8eced;
-  --accent: #1b6c80;
+  --text: #1c2230;
+  --muted: #6b7384;
+  --border: #e6e8f2;
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8;
+  --accent-soft: #eef2ff;
   --surface: #fff;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --shadow-sm:
+    0 1px 2px rgba(23, 31, 56, 0.05), 0 1px 3px rgba(23, 31, 56, 0.06);
+  --shadow-md:
+    0 6px 18px rgba(23, 31, 56, 0.07), 0 2px 6px rgba(23, 31, 56, 0.04);
+  --shadow-lg: 0 24px 64px rgba(23, 31, 56, 0.14);
   font-size: 14px;
 }
 * {
@@ -16,6 +25,30 @@
 }
 body {
   margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      1150px 720px at 100% -6%,
+      #fef4e4 0%,
+      rgba(254, 244, 228, 0) 55%
+    ),
+    radial-gradient(
+      760px 560px at 104% 8%,
+      #fde7c4 0%,
+      rgba(253, 231, 196, 0) 48%
+    ),
+    radial-gradient(
+      880px 720px at -10% 110%,
+      #e6d9ff 0%,
+      rgba(230, 217, 255, 0) 55%
+    ),
+    radial-gradient(
+      820px 700px at 114% 116%,
+      #e0dcfb 0%,
+      rgba(224, 220, 251, 0) 55%
+    ),
+    linear-gradient(170deg, #eef1fc 0%, #ebedf8 100%);
+  background-attachment: fixed;
 }
 button,
 input,
@@ -43,27 +76,30 @@ button {
   gap: 8px;
   min-height: 35px;
   padding: 7px 12px;
-  border: 1px solid #d7dddf;
-  border-radius: 6px;
+  border: 1px solid #dcdfeb;
+  border-radius: 9px;
   background: #fff;
   color: var(--text);
   cursor: pointer;
   font-weight: 500;
 }
 button:hover {
-  background: #f3f5f5;
+  background: #f6f7fc;
+  border-color: #cfd4e6;
 }
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 button.primary {
-  background: #252b2d;
+  background: var(--accent);
   color: white;
-  border-color: #252b2d;
+  border-color: var(--accent);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
 }
 button.primary:hover {
-  background: #3b4447;
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
 }
 button.icon {
   border: 0;
@@ -91,7 +127,7 @@ a:focus-visible,
 summary:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid #1b6c80;
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 h1,
@@ -131,15 +167,19 @@ svg {
 input,
 select {
   background: white;
-  border: 1px solid #cdd5d8;
-  border-radius: 6px;
+  border: 1px solid #d4d8e8;
+  border-radius: 9px;
   min-height: 36px;
-  padding: 8px 10px;
+  padding: 8px 11px;
   color: var(--text);
   max-width: 100%;
 }
+input:focus,
+select:focus {
+  border-color: var(--accent);
+}
 input::placeholder {
-  color: #657074;
+  color: #9aa1b4;
 }
 label {
   display: grid;
@@ -157,17 +197,24 @@ label + label {
   color: var(--muted);
 }
 .app {
+  --sidebar-width: 216px;
+  --sidebar-inset: 12px;
+  --sidebar-column: calc(var(--sidebar-width) + 2 * var(--sidebar-inset));
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 228px minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-column) minmax(0, 1fr);
 }
 .sidebar {
   padding: 29px 17px 20px;
   display: flex;
   flex-direction: column;
   position: fixed;
-  inset: 0 auto 0 0;
-  width: 228px;
+  inset: var(--sidebar-inset) auto var(--sidebar-inset) var(--sidebar-inset);
+  width: var(--sidebar-width);
+  overflow-y: auto;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   z-index: 20;
 }
 .brand {
@@ -180,7 +227,7 @@ label + label {
   padding: 0 9px;
 }
 .brand .vault-mark {
-  color: #1b6c80;
+  color: var(--accent);
 }
 .brand small {
   display: block;
@@ -209,12 +256,15 @@ label + label {
   font-weight: 400;
 }
 .sidebar nav button[aria-current] {
-  background: #e2e8e8;
-  color: #202526;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
   font-weight: 500;
 }
-.sidebar nav button:hover {
-  background: #e7ecec;
+.sidebar nav button[aria-current] svg {
+  color: var(--accent);
+}
+.sidebar nav button:hover:not([aria-current]) {
+  background: #f3f5fa;
 }
 .sidebar nav button small {
   margin-left: auto;
@@ -232,11 +282,12 @@ label + label {
 }
 .local-status span,
 .status-dot {
-  width: 6px;
-  height: 6px;
-  background: #657b6d;
+  width: 7px;
+  height: 7px;
+  background: #35b37e;
   border-radius: 50%;
   display: inline-block;
+  box-shadow: 0 0 0 3px rgba(53, 179, 126, 0.16);
 }
 .sidebar-bottom p {
   font-size: 12px;
@@ -262,11 +313,6 @@ label + label {
   width: 31px;
   font-weight: 500;
   font-size: 12px;
-}
-.profile small {
-  display: block;
-  font-size: 12px;
-  margin-top: 3px;
 }
 .workspace {
   grid-column: 2;
@@ -295,12 +341,15 @@ label + label {
 }
 .sheet {
   min-height: calc(100vh - 74px);
-  background: #fff;
-  border: 1px solid #e2e7e8;
-  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius-lg);
   margin: 0 9px 9px 0;
   padding: 24px 30px 0;
   max-width: 1800px;
+  box-shadow: var(--shadow-lg);
 }
 .demo-notice {
   border-bottom: 1px solid var(--border);
@@ -388,9 +437,11 @@ label + label {
 }
 .panel {
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 21px;
   min-width: 0;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
 }
 .panel-heading {
   display: flex;
@@ -406,11 +457,12 @@ label + label {
   font-size: 14px;
 }
 .upload-panel {
-  background: #f8fafb;
+  background: linear-gradient(180deg, #f6f8ff 0%, #f3f6fe 100%);
   min-height: 215px;
 }
 .upload-panel[data-drag="true"] {
-  outline: 2px solid #1b6c80;
+  outline: 2px solid var(--accent);
+  background: var(--accent-soft);
 }
 .upload-panel p {
   font-size: 13px;
@@ -451,7 +503,7 @@ label + label {
 .track i {
   display: block;
   height: 100%;
-  background: #1b6c80;
+  background: linear-gradient(90deg, #3b82f6, var(--accent));
   border-radius: 3px;
   min-width: 0;
 }
@@ -460,13 +512,14 @@ label + label {
   align-items: center;
   gap: 13px;
   margin: 22px 0 26px;
-  background: #f6f9f8;
-  border: 1px solid #e3eae7;
-  border-radius: 7px;
+  background: linear-gradient(120deg, #f2f6ff 0%, #f6f1ff 100%);
+  border: 1px solid #e4e6fa;
+  border-radius: var(--radius);
   padding: 16px;
+  box-shadow: var(--shadow-sm);
 }
 .recovery-strip > svg {
-  color: #527567;
+  color: var(--accent);
 }
 .recovery-strip h2 {
   font-size: 13px;
@@ -956,8 +1009,8 @@ label + label {
   min-height: 0;
   max-width: 40px;
   width: 100%;
-  background: #1b6c80;
-  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #5c9bff, var(--accent));
+  border-radius: 4px 4px 0 0;
 }
 .bars small {
   padding-bottom: 10px;
@@ -976,7 +1029,7 @@ label + label {
 }
 .upload-progress progress {
   flex: 1;
-  accent-color: #1b6c80;
+  accent-color: var(--accent);
 }
 .error {
   display: flex;
@@ -998,16 +1051,16 @@ label + label {
 .toast {
   position: fixed;
   bottom: 24px;
-  left: calc(50% + 114px);
+  left: calc(50% + var(--sidebar-column) / 2);
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 13px 17px;
-  background: #263936;
+  background: #1c2230;
   color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 6px 24px #152a231c;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(23, 31, 56, 0.28);
   z-index: 100;
   font-size: 13px;
   max-width: 90vw;
@@ -1053,18 +1106,19 @@ label + label {
   top: 10px;
 }
 dialog {
-  border: 1px solid #dce2e4;
-  border-radius: 12px;
+  border: 1px solid #e3e5f0;
+  border-radius: 16px;
   width: min(540px, calc(100% - 32px));
   max-height: 85vh;
   padding: 24px;
   color: var(--text);
-  box-shadow: 0 16px 60px #0e222f22;
+  box-shadow: var(--shadow-lg);
   margin: auto;
   overflow-y: auto;
 }
 dialog::backdrop {
-  background: #17252b70;
+  background: rgba(20, 26, 48, 0.42);
+  backdrop-filter: blur(3px);
 }
 dialog > header {
   display: flex;
@@ -1128,9 +1182,9 @@ dialog button {
   color: #657074;
 }
 .restore-confirm {
-  background: #f4f8f7;
-  border: 1px solid #dce8e4;
-  border-radius: 8px;
+  background: var(--accent-soft);
+  border: 1px solid #dfe5fb;
+  border-radius: 12px;
   padding: 15px;
   margin-top: 18px;
   font-size: 13px;
@@ -1140,19 +1194,43 @@ dialog button {
 }
 .share-screen,
 .config-error {
-  max-width: 650px;
-  margin: 10vh auto;
-  padding: 28px;
+  max-width: 452px;
+  margin: 11vh auto;
+  padding: 36px 34px 34px;
   display: flex;
-  align-items: start;
+  align-items: stretch;
   flex-direction: column;
-  gap: 24px;
+  gap: 18px;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 22px;
+  box-shadow: var(--shadow-lg);
+}
+.share-screen h1,
+.config-error h1 {
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
 }
 .share-screen .brand {
   padding: 0;
+  font-size: 19px;
 }
-.share-screen p {
+.share-screen p,
+.config-error p {
   color: #657074;
+  margin: 0;
+}
+.share-screen > button,
+.config-error > button {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 4px;
+}
+.share-screen .demo-tag {
+  align-self: flex-start;
 }
 .mobile-menu,
 .mobile-close {
@@ -1174,10 +1252,9 @@ dialog button {
 }
 @media (max-width: 1150px) {
   .app {
-    grid-template-columns: 195px minmax(0, 1fr);
+    --sidebar-width: 183px;
   }
   .sidebar {
-    width: 195px;
     padding-left: 10px;
     padding-right: 10px;
   }
@@ -1222,9 +1299,6 @@ dialog button {
   .setting-row {
     gap: 24px;
   }
-  .toast {
-    left: calc(50% + 98px);
-  }
 }
 @media (max-width: 950px) {
   .app {
@@ -1235,9 +1309,8 @@ dialog button {
   }
   .sidebar.mobile-open {
     display: flex;
-    background: #f1f4f4;
-    width: 100%;
-    max-width: none;
+    inset: var(--sidebar-inset);
+    width: auto;
     z-index: 80;
   }
   .mobile-close {
@@ -1710,7 +1783,4 @@ dialog button {
   .file-row {
     grid-template-columns: minmax(0, 1fr) 66px 44px;
   }
-}
-.sidebar.mobile-open {
-  overflow-y: auto;
 }

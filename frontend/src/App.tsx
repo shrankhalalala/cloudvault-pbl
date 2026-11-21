@@ -589,12 +589,7 @@ export default function App({
           </p>
           <div className="profile">
             <span>CV</span>
-            <div>
-              University project
-              <small>
-                {cloud ? "Authenticated owner" : "Single-user demo"}
-              </small>
-            </div>
+            {cloud ? "Authenticated owner" : "Single-user demo"}
           </div>
         </div>
       </aside>
